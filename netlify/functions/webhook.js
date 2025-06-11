@@ -1,9 +1,28 @@
-exports.handler = async (event) => {
-  const data = JSON.parse(event.body);
-  console.log("受け取ったデータ：", data);
+const fetch = require("node-fetch");
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ message: "受け取り完了！" }),
-  };
+exports.handler = async (event, context) => {
+  try {
+    const zapierUrl = "https://hooks.zapier.com/hooks/catch/22798750/2v8f2as/"; // ←ここをあなたのURLに
+
+    const body = JSON.parse(event.body);
+
+    const response = await fetch(zapierUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ success: true }),
+    };
+  } catch (err) {
+    console.error("Error forwarding to Zapier:", err);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Webhook forwarding failed" }),
+    };
+  }
 };
